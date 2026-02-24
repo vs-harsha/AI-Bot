@@ -1,6 +1,5 @@
 import os
-import json
-from flask import Flask, render_template, request, Response, stream_with_context, jsonify
+from flask import Flask, render_template, request, jsonify
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -28,32 +27,18 @@ def chat():
     # Prepend system message
     full_messages = [{"role": "system", "content": system_prompt}] + messages
 
-    def generate():
-        try:
-            completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=full_messages,
-                stream=True,
-                max_tokens=2048,
-                temperature=0.7,
-            )
-            for chunk in completion:
-                content = chunk.choices[0].delta.content
-                if content:
-                    yield f"data: {json.dumps({'content': content})}\n\n"
-            yield "data: [DONE]\n\n"
-        except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
-            yield "data: [DONE]\n\n"
-
-    return Response(
-        stream_with_context(generate()),
-        content_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no",
-        },
-    )
+    try:
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=full_messages,
+            stream=False,
+            max_tokens=2048,
+            temperature=0.7,
+        )
+        content = completion.choices[0].message.content
+        return jsonify({"content": content})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

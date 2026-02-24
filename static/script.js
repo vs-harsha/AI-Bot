@@ -153,12 +153,28 @@ function createTypingIndicator() {
   return row;
 }
 
+// ── Typewriter effect ────────────────────────────────────────────
+async function typeWriter(bubble, fullText) {
+  const words = fullText.split(' ');
+  let displayed = '';
+  for (let i = 0; i < words.length; i++) {
+    displayed += (i === 0 ? '' : ' ') + words[i];
+    bubble.innerHTML = renderMarkdown(displayed + (i < words.length - 1 ? ' ▋' : ''));
+    highlightCode(bubble);
+    scrollToBottom(false);
+    await new Promise(r => setTimeout(r, 18));
+  }
+  bubble.innerHTML = renderMarkdown(fullText);
+  highlightCode(bubble);
+}
+
 // ── Send message ────────────────────────────────────────────────
 async function sendMessage(text) {
   if (!text.trim() || isLoading) return;
 
   // Hide welcome screen
-  if (welcomeScreen) welcomeScreen.remove();
+  const ws = document.getElementById('welcomeScreen');
+  if (ws) ws.remove();
 
   // Update title on first message
   if (conversationHistory.length === 0) {
@@ -180,8 +196,6 @@ async function sendMessage(text) {
 
   setLoading(true);
 
-  // Create AI message row (will be filled as stream comes in)
-  let aiText = '';
   let aiRow = null;
   let aiBubble = null;
 
@@ -195,51 +209,21 @@ async function sendMessage(text) {
       }),
     });
 
-    if (!response.ok) throw new Error(`Server error: ${response.status}`);
+    const data = await response.json();
 
-    // Remove typing indicator and create real AI bubble
+    // Remove typing indicator and create AI bubble
     typingEl.remove();
     const created = createMessageRow('ai');
     aiRow = created.row;
     aiBubble = created.bubble;
     messagesEl.appendChild(aiRow);
+    scrollToBottom();
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop(); // keep incomplete line
-
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const raw = line.slice(6).trim();
-        if (raw === '[DONE]') continue;
-
-        try {
-          const parsed = JSON.parse(raw);
-          if (parsed.error) {
-            aiBubble.innerHTML = `<span style="color:#f87171;">Error: ${escapeHtml(parsed.error)}</span>`;
-            break;
-          }
-          if (parsed.content) {
-            aiText += parsed.content;
-            aiBubble.innerHTML = renderMarkdown(aiText);
-            highlightCode(aiBubble);
-            scrollToBottom(false);
-          }
-        } catch { /* ignore parse errors */ }
-      }
-    }
-
-    // Save to history
-    if (aiText) {
-      conversationHistory.push({ role: 'assistant', content: aiText });
+    if (data.error) {
+      aiBubble.innerHTML = `<span style="color:#f87171;">Error: ${escapeHtml(data.error)}</span>`;
+    } else {
+      await typeWriter(aiBubble, data.content);
+      conversationHistory.push({ role: 'assistant', content: data.content });
     }
 
   } catch (err) {
