@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, render_template, request, Response, stream_with_context
+from flask import Flask, render_template, request, Response, stream_with_context, jsonify
 from groq import Groq
 from dotenv import load_dotenv
 
