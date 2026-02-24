@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Chatbot</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <!-- Highlight.js for code syntax highlighting (free CDN) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <!-- Marked.js for markdown rendering (free CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-icon">🤖</span>
+          <span class="logo-text">AI Chatbot</span>
+        </div>
+        <button class="icon-btn" id="closeSidebar" title="Close sidebar">✕</button>
+      </div>
+
+      <button class="new-chat-btn" id="newChatBtn">
+        <span>＋</span> New Chat
+      </button>
+
+      <div class="sidebar-section">
+        <p class="sidebar-label">Model</p>
+        <div class="model-badge">llama-3.3-70b · Groq (Free)</div>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-label">System Prompt</p>
+        <textarea
+          id="systemPrompt"
+          class="system-prompt-input"
+          rows="6"
+          placeholder="Enter a system prompt to shape the AI's behavior..."
+        >You are a helpful, friendly and intelligent AI assistant. Answer questions clearly and concisely. If you don't know something, say so honestly.</textarea>
+        <button class="apply-btn" id="applyPrompt">Apply</button>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="https://console.groq.com" target="_blank" class="footer-link">Get Free API Key →</a>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- Top bar -->
+      <header class="topbar">
+        <button class="icon-btn" id="toggleSidebar" title="Toggle sidebar">☰</button>
+        <div class="topbar-title">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="topbarTitle">New Chat</span>
+        </div>
+        <button class="icon-btn" id="clearChat" title="Clear conversation">🗑</button>
+      </header>
+
+      <!-- Messages -->
+      <div class="messages-container" id="messages">
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-icon">🤖</div>
+          <h1 class="welcome-title">AI Chatbot</h1>
+          <p class="welcome-sub">Powered by Groq · LLaMA 3.3 70B · Free</p>
+          <div class="suggestions">
+            <button class="suggestion-btn" data-q="What can you help me with?">What can you help me with?</button>
+            <button class="suggestion-btn" data-q="Write a Python function to sort a list">Write a Python function to sort a list</button>
+            <button class="suggestion-btn" data-q="Explain quantum computing in simple terms">Explain quantum computing simply</button>
+            <button class="suggestion-btn" data-q="Give me 5 creative startup ideas">Give me 5 creative startup ideas</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="input-area">
+        <div class="input-wrapper">
+          <textarea
+            id="userInput"
+            class="user-input"
+            placeholder="Message AI Chatbot... (Enter to send, Shift+Enter for new line)"
+            rows="1"
+          ></textarea>
+          <button class="send-btn" id="sendBtn" title="Send message" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+        <p class="input-hint">AI can make mistakes. Verify important information.</p>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
